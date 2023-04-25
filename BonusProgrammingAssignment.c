@@ -36,6 +36,8 @@ void init_cache(Cache *cache, int assoc, int rp)
     cache->tag = (int **) malloc(cache->num_sets * sizeof(int *));
     cache->valid = (int **) malloc(cache->num_sets * sizeof(int *));
     cache->data = (char **) malloc(cache->num_sets * sizeof(char *));
+
+
     if (rp == 0)
     {
         cache->lru = (int *) malloc(cache->num_sets * sizeof(int));
@@ -48,6 +50,8 @@ void init_cache(Cache *cache, int assoc, int rp)
         cache->tag[i] = (int *) malloc(assoc * sizeof(int));
         cache->valid[i] = (int *) malloc(assoc * sizeof(int));
         cache->data[i] = (char *) malloc(cache->block_size * assoc * sizeof(char));
+
+
         for (j = 0; j < assoc; j++)
         {
             cache->tag[i][j] = -1;
@@ -63,10 +67,14 @@ void access_cache(Cache *cache, int addr)
     int set_index = (addr / cache->block_size) % cache->num_sets;
     int tag = (addr / cache->block_size) / cache->num_sets;
     int i, j, lru_index, random_index;
+
+
     for (i = 0; i < cache->assoc; i++)
     {
+
         if (cache->valid[set_index][i] && cache->tag[set_index][i] == tag)
         {
+
             cache->hit++;
             if (cache->rp == 0)
             {
@@ -77,16 +85,21 @@ void access_cache(Cache *cache, int addr)
     }
         // Increments miss counter
         cache->miss++;
+
         if (cache->rp == 0)
         {
             lru_index = cache->lru[set_index];
+
+
             for (i = 0; i < cache->assoc; i++)
             {
+
                 if (!cache->valid[set_index][i])
                 {
                     lru_index = i;
                     break;
                 }
+
                 if (cache->lru[set_index] > cache->lru[set_index + i])
                 {
                     lru_index = i;
@@ -100,10 +113,12 @@ void access_cache(Cache *cache, int addr)
                 lru_index = 0;
                 cache->lru[set_index] = 0;
             }
+
             cache->tag[set_index][lru_index] = tag;
             cache->valid[set_index][lru_index] = 1;
             memcpy(&cache->data[set_index][lru_index * cache->block_size], &addr, cache->block_size * sizeof(char));
         }
+        
         // else statement that picks random index within the set and updates tag and data for that index
         else
         {
